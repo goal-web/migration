@@ -42,16 +42,27 @@ func (cmd Migrate) init() {
 }
 
 func (cmd Migrate) Files() []string {
+	var dir = cmd.StringOptional("path", cmd.dir)
 	var files []string
-	err := filepath.Walk(cmd.dir, func(path string, info os.FileInfo, err error) error {
-		if strings.HasSuffix(info.Name(), ".sql") {
-			files = append(files, info.Name())
-		}
-		return nil
-	})
+	fs, err := os.Stat(dir)
 	if err != nil {
 		panic(err)
 	}
+
+	if fs.IsDir() {
+		err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+			if strings.HasSuffix(info.Name(), ".sql") {
+				files = append(files, info.Name())
+			}
+			return nil
+		})
+		if err != nil {
+			panic(err)
+		}
+	} else if strings.HasSuffix(dir, ".sql") {
+		files = []string{fs.Name()}
+	}
+
 	return files
 }
 
