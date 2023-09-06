@@ -13,36 +13,34 @@ import (
 	"time"
 )
 
-func NewMigrate(app contracts.Application) contracts.Command {
+func NewRefresh(app contracts.Application) contracts.Command {
 	dir, _ := os.Getwd()
 	if str, exists := app.Get("migrations.dir").(string); exists && str != "" {
 		dir += "/" + str
 	} else {
 		dir += "/migrations"
 	}
-	return &Migrate{
-		Command: commands.Base("migrate", "execute migrations"),
+	return &Refresh{
+		Command: commands.Base("migrate:refresh", "execute migrations"),
 		conn:    app.Get("db").(contracts.DBConnection),
 		dir:     dir,
 	}
 }
 
-type Migrate struct {
+type Refresh struct {
 	commands.Command
 	conn contracts.DBConnection
 	dir  string
 }
 
-const Table = "CREATE TABLE IF NOT EXISTS migrations\n(\n    `id`       INT UNSIGNED AUTO_INCREMENT,\n    path       varchar(255),\n    batch      int,\n    created_at timestamp,\n    PRIMARY KEY (`id`)\n) ENGINE = InnoDB\n  DEFAULT CHARSET = utf8mb4;"
-
-func (cmd Migrate) init() {
+func (cmd Refresh) init() {
 	_, e := cmd.conn.Exec(Table)
 	if e != nil {
 		panic(e)
 	}
 }
 
-func (cmd Migrate) Files() []string {
+func (cmd Refresh) Files() []string {
 	var dir = cmd.StringOptional("path", cmd.dir)
 	var files []string
 	fs, err := os.Stat(dir)
@@ -67,27 +65,36 @@ func (cmd Migrate) Files() []string {
 	return files
 }
 
-type MigrateMsg struct {
-	Batch  int           `json:"batch"`
-	Path   string        `json:"path"`
-	Action string        `json:"action"`
-	Time   time.Duration `json:"time"`
-}
-
-func (cmd Migrate) Handle() any {
-	logs.Default().Info("执行迁移")
+func (cmd Refresh) Handle() any {
+	logs.Default().Info("执行 refresh")
 	cmd.init()
 
-	var batch int
+	var items []MigrateMsg
+	var dir = cmd.StringOptional("path", cmd.dir)
 	if Migrations().Count() > 0 {
-		batch = int(Migrations().Max("batch"))
+		var batch = cmd.IntOptional("batch", int(Migrations().Max("batch")))
+		Migrations().Get().Map(func(i int, migration Migration) {
+			sqlBytes, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, strings.ReplaceAll(migration.Path, ".sql", ".down.sql")))
+			if err != nil {
+				panic(err)
+			}
+			now := time.Now()
+			_, e := cmd.conn.Exec(string(sqlBytes))
+			if e != nil {
+				panic(e)
+			}
+			items = append(items, MigrateMsg{
+				Batch:  batch,
+				Path:   migration.Path,
+				Action: "rollback",
+				Time:   time.Now().Sub(now),
+			})
+			Migrations().Where("id", migration.Id).Delete()
+		})
 	}
 
-	var dir = cmd.StringOptional("path", cmd.dir)
-	var items []MigrateMsg
-	var migrated = Migrations().Get()
 	var files = collection.New(cmd.Files()).Filter(func(i int, s string) bool {
-		return !strings.HasSuffix(s, ".down.sql") && migrated.Where("path", s).Count() == 0
+		return !strings.HasSuffix(s, ".down.sql")
 	}).ToArray()
 
 	for _, path := range files {
@@ -102,12 +109,12 @@ func (cmd Migrate) Handle() any {
 		}
 		items = append(items, MigrateMsg{
 			Action: "migrate",
-			Batch:  batch + 1,
+			Batch:  1,
 			Path:   path,
 			Time:   time.Now().Sub(now),
 		})
 		Migrations().Create(contracts.Fields{
-			"batch":      batch + 1,
+			"batch":      1,
 			"path":       path,
 			"created_at": time.Now(),
 		})

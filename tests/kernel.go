@@ -11,9 +11,14 @@ func NewService() contracts.ServiceProvider {
 }
 
 func NewKernel(app contracts.Application) contracts.Console {
-	return &Kernel{console.NewKernel(app, []contracts.CommandProvider{
+	return &Kernel{Kernel: console.NewKernel(app, []contracts.CommandProvider{
 		migration.NewMigrate,
-	}), app}
+		migration.NewRollback,
+		migration.NewRefresh,
+		migration.NewGenerator,
+		migration.NewShowStatus,
+		migration.NewReset,
+	}), app: app}
 }
 
 type Kernel struct {
@@ -22,7 +27,5 @@ type Kernel struct {
 }
 
 func (kernel *Kernel) Schedule(schedule contracts.Schedule) {
-	//schedule.Call(func() {
-	//	logs.Default().Info("周日每5秒钟打印 周日愉快")
-	//}).EveryFiveSeconds().Sundays()
+
 }
