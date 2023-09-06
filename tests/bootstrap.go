@@ -5,6 +5,7 @@ import (
 	"github.com/goal-web/config"
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/database"
+	"github.com/goal-web/migration"
 	"github.com/goal-web/redis"
 	"github.com/goal-web/supports/exceptions"
 	"github.com/goal-web/supports/logs"
@@ -82,6 +83,7 @@ func initApp(path ...string) contracts.Application {
 		database.NewService(),
 		redis.NewService(),
 		NewService(),
+		migration.NewService(),
 		//&http.serviceProvider{RouteCollectors: []any{
 		//	// 路由收集器
 		//	routes.V1Routes,
