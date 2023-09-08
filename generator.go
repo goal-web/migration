@@ -30,7 +30,7 @@ type Generator struct {
 func (cmd Generator) Handle() any {
 	var name = time.Now().Format("2006_01_02_150405") + "_" + cmd.GetString("name")
 	var dir = cmd.StringOptional("path", cmd.dir)
-	reg, _ := regexp.Compile("create_(.*)_table")
+	reg, _ := regexp.Compile("create_(.*)")
 	upSql := ""
 	downSql := ""
 
