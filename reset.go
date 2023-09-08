@@ -31,16 +31,9 @@ type Reset struct {
 	dir  string
 }
 
-func (cmd Reset) init() {
-	_, e := cmd.conn.Exec(Table)
-	if e != nil {
-		panic(e)
-	}
-}
-
 func (cmd Reset) Handle() any {
 	logs.Default().Info("执行重置")
-	cmd.init()
+	initTable(cmd.conn)
 
 	var items []MigrateMsg
 	var migrated = Migrations().Get()

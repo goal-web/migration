@@ -8,7 +8,6 @@ import (
 	"github.com/goal-web/supports/logs"
 	"github.com/modood/table"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 )
@@ -33,41 +32,9 @@ type Refresh struct {
 	dir  string
 }
 
-func (cmd Refresh) init() {
-	_, e := cmd.conn.Exec(Table)
-	if e != nil {
-		panic(e)
-	}
-}
-
-func (cmd Refresh) Files() []string {
-	var dir = cmd.StringOptional("path", cmd.dir)
-	var files []string
-	fs, err := os.Stat(dir)
-	if err != nil {
-		panic(err)
-	}
-
-	if fs.IsDir() {
-		err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-			if strings.HasSuffix(info.Name(), ".sql") {
-				files = append(files, info.Name())
-			}
-			return nil
-		})
-		if err != nil {
-			panic(err)
-		}
-	} else if strings.HasSuffix(dir, ".sql") {
-		files = []string{fs.Name()}
-	}
-
-	return files
-}
-
 func (cmd Refresh) Handle() any {
 	logs.Default().Info("执行 refresh")
-	cmd.init()
+	initTable(cmd.conn)
 
 	var items []MigrateMsg
 	var dir = cmd.StringOptional("path", cmd.dir)
@@ -93,7 +60,7 @@ func (cmd Refresh) Handle() any {
 		})
 	}
 
-	var files = collection.New(cmd.Files()).Filter(func(i int, s string) bool {
+	var files = collection.New(getFiles(dir)).Filter(func(i int, s string) bool {
 		return !strings.HasSuffix(s, ".down.sql")
 	}).ToArray()
 

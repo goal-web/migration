@@ -3,14 +3,22 @@ package migration
 import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/commands"
-	"github.com/goal-web/supports/logs"
 	"github.com/modood/table"
+	"os"
+	"strings"
 )
 
 func NewShowStatus(app contracts.Application) contracts.Command {
+	dir, _ := os.Getwd()
+	if str, exists := app.Get("migrations.dir").(string); exists && str != "" {
+		dir += "/" + str
+	} else {
+		dir += "/migrations"
+	}
 	return &ShowStatus{
-		Command: commands.Base("migrate:reset", "Rollback all database migrations"),
+		Command: commands.Base("migrate:status", "Rollback all database migrations"),
 		conn:    app.Get("db").(contracts.DBConnection),
+		dir:     dir,
 	}
 }
 
@@ -20,22 +28,35 @@ type ShowStatus struct {
 	dir  string
 }
 
-func (cmd ShowStatus) init() {
-	_, e := cmd.conn.Exec(Table)
-	if e != nil {
-		panic(e)
-	}
+type Status struct {
+	Path   string `json:"path"`
+	Batch  int    `json:"batch"`
+	Status string `json:"status"`
 }
 
 func (cmd ShowStatus) Handle() any {
-	cmd.init()
-	items := Migrations().OrderByDesc("batch").OrderByDesc("id").Get().ToArray()
+	initTable(cmd.conn)
 
-	if len(items) > 0 {
-		table.Output(items)
-	} else {
-		logs.Default().Info("删除")
+	items := Migrations().OrderByDesc("batch").OrderByDesc("id").Get().Pluck("path")
+
+	var dir = cmd.StringOptional("path", cmd.dir)
+	var list []Status
+
+	for _, path := range getFiles(dir) {
+		item, exists := items[path]
+		text := "pending"
+		if exists {
+			text = "migrated"
+		}
+		if !strings.HasSuffix(path, ".down.sql") {
+			list = append(list, Status{
+				Path:   path,
+				Batch:  item.Batch,
+				Status: text,
+			})
+		}
 	}
+	table.Output(list)
 
 	return nil
 }

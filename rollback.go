@@ -31,16 +31,9 @@ type Rollback struct {
 	dir  string
 }
 
-func (cmd Rollback) init() {
-	_, e := cmd.conn.Exec(Table)
-	if e != nil {
-		panic(e)
-	}
-}
-
 func (cmd Rollback) Handle() any {
 	logs.Default().Info("执行回滚")
-	cmd.init()
+	initTable(cmd.conn)
 
 	var batch int
 	if Migrations().Count() > 0 {
