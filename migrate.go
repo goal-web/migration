@@ -6,6 +6,7 @@ import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/commands"
 	"github.com/goal-web/supports/logs"
+	"github.com/golang-module/carbon/v2"
 	"github.com/modood/table"
 	"os"
 	"strings"
@@ -74,7 +75,7 @@ func (cmd Migrate) Handle() any {
 		Migrations().Create(contracts.Fields{
 			"batch":      batch + 1,
 			"path":       path,
-			"created_at": time.Now(),
+			"created_at": carbon.Now().Timestamp(),
 		})
 	}
 
