@@ -75,7 +75,7 @@ func (cmd Migrate) Handle() any {
 		Migrations().Create(contracts.Fields{
 			"batch":      batch + 1,
 			"path":       path,
-			"created_at": carbon.Now().Timestamp(),
+			"created_at": carbon.Now().ToDateTimeString(),
 		})
 	}
 
