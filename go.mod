@@ -1,4 +1,4 @@
-module github.com/goal-3/migration
+module github.com/goal/migration
 
 go 1.20
 
