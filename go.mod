@@ -8,7 +8,7 @@ require (
 	github.com/goal-web/config v0.3.0
 	github.com/goal-web/console v0.3.0
 	github.com/goal-web/contracts v0.3.0
-	github.com/goal-web/database v0.3.0
+	github.com/goal-web/database v0.3.2
 	github.com/goal-web/migration v0.2.6
 	github.com/goal-web/redis v0.3.1
 	github.com/goal-web/supports v0.3.0

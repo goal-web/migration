@@ -12,6 +12,8 @@ func Migrations() *table.Table[Migration] {
 }
 
 type Migration struct {
+	table.Model[Migration] `json:"-"`
+
 	Id        string `json:"id"`
 	Path      string `json:"path"`
 	Batch     int    `json:"batch"`
