@@ -53,7 +53,9 @@ func (cmd Migrate) Handle() any {
 	var items []MigrateMsg
 	var migrated = Migrations().Get()
 	var files = collection.New(getFiles(dir)).Filter(func(i int, s string) bool {
-		return !strings.HasSuffix(s, ".down.sql") && migrated.Where("path", s).Count() == 0
+		return !strings.HasSuffix(s, ".down.sql") && migrated.Filter(func(i int, m *Migration) bool {
+			return m.Path == s
+		}).Count() == 0
 	}).ToArray()
 
 	for _, path := range files {
