@@ -12,16 +12,10 @@ import (
 )
 
 func NewReset(app contracts.Application) contracts.Command {
-	dir, _ := os.Getwd()
-	if str, exists := app.Get("migrations.dir").(string); exists && str != "" {
-		dir += "/" + str
-	} else {
-		dir += "/migrations"
-	}
 	return &Reset{
 		Command: commands.Base("migrate:reset", "Rollback all database migrations"),
 		conn:    app.Get("db").(contracts.DBConnection),
-		dir:     dir,
+		dir:     getDir(app.Get("config").(contracts.Config)),
 	}
 }
 

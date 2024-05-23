@@ -14,16 +14,10 @@ import (
 )
 
 func NewMigrate(app contracts.Application) contracts.Command {
-	dir, _ := os.Getwd()
-	if str, exists := app.Get("migrations.dir").(string); exists && str != "" {
-		dir += "/" + str
-	} else {
-		dir += "/migrations"
-	}
 	return &Migrate{
 		Command: commands.Base("migrate", "execute migrations"),
 		conn:    app.Get("db").(contracts.DBConnection),
-		dir:     dir,
+		dir:     getDir(app.Get("config").(contracts.Config)),
 	}
 }
 

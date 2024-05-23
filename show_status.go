@@ -4,21 +4,14 @@ import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/commands"
 	"github.com/modood/table"
-	"os"
 	"strings"
 )
 
 func NewShowStatus(app contracts.Application) contracts.Command {
-	dir, _ := os.Getwd()
-	if str, exists := app.Get("migrations.dir").(string); exists && str != "" {
-		dir += "/" + str
-	} else {
-		dir += "/migrations"
-	}
 	return &ShowStatus{
 		Command: commands.Base("migrate:status", "Rollback all database migrations"),
 		conn:    app.Get("db").(contracts.DBConnection),
-		dir:     dir,
+		dir:     getDir(app.Get("config").(contracts.Config)),
 	}
 }
 

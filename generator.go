@@ -10,15 +10,9 @@ import (
 )
 
 func NewGenerator(app contracts.Application) contracts.Command {
-	dir, _ := os.Getwd()
-	if str, exists := app.Get("migrations.dir").(string); exists && str != "" {
-		dir += "/" + str
-	} else {
-		dir += "/migrations"
-	}
 	return &Generator{
 		Command: commands.Base("make:migration {name}", "Create a new migration file"),
-		dir:     dir,
+		dir:     getDir(app.Get("config").(contracts.Config)),
 	}
 }
 

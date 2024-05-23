@@ -7,6 +7,21 @@ import (
 	"strings"
 )
 
+func getDir(config contracts.Config) string {
+	dir, _ := os.Getwd()
+	conf, exists := config.Get("migration").(*Config)
+	if exists && conf.Dir != "" {
+		if strings.HasPrefix(conf.Dir, "/") {
+			dir = conf.Dir
+		} else {
+			dir += "/" + conf.Dir
+		}
+	} else {
+		dir += "/migrations"
+	}
+	return dir
+}
+
 func initTable(connection contracts.DBConnection) {
 	_, e := connection.Exec(Table)
 	if e != nil {
