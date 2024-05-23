@@ -9,9 +9,8 @@ require (
 	github.com/goal-web/console v0.3.0
 	github.com/goal-web/contracts v0.3.0
 	github.com/goal-web/database v0.3.2
-	github.com/goal-web/migration v0.2.6
 	github.com/goal-web/redis v0.3.1
-	github.com/goal-web/supports v0.3.0
+	github.com/goal-web/supports v0.3.3
 	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/modood/table v0.0.0-20220527013332-8d47e76dad33
 )
@@ -36,7 +35,6 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
-	github.com/smarty/assertions v1.16.0 // indirect
 	go.opentelemetry.io/otel v1.3.0 // indirect
 	go.opentelemetry.io/otel/trace v1.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
