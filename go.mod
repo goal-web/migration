@@ -15,8 +15,6 @@ require (
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/go-redis/redis/v8 v8.11.4 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
-	github.com/goal-web/container v0.3.0 // indirect
-	github.com/goal-web/querybuilder v0.3.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
 	github.com/jmoiron/sqlx v1.3.4 // indirect
