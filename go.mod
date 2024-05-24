@@ -3,14 +3,6 @@ module github.com/goal-web/migration
 go 1.20
 
 require (
-	github.com/goal-web/application v0.3.0
-	github.com/goal-web/collection v0.3.1
-	github.com/goal-web/config v0.3.0
-	github.com/goal-web/console v0.3.0
-	github.com/goal-web/contracts v0.3.0
-	github.com/goal-web/database v0.3.2
-	github.com/goal-web/redis v0.3.1
-	github.com/goal-web/supports v0.3.3
 	github.com/golang-module/carbon/v2 v2.3.12
 	github.com/modood/table v0.0.0-20220527013332-8d47e76dad33
 )

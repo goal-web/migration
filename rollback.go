@@ -39,7 +39,7 @@ func (cmd Rollback) Handle() any {
 	var migrated = Migrations().Where("batch", batch).Get()
 	var dir = cmd.StringOptional("path", cmd.dir)
 
-	migrated.Map(func(i int, migration Migration) {
+	migrated.Map(func(i int, migration *Migration) {
 		sqlBytes, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, strings.ReplaceAll(migration.Path, ".sql", ".down.sql")))
 		if err != nil {
 			panic(err)
@@ -53,7 +53,7 @@ func (cmd Rollback) Handle() any {
 			Batch:  batch,
 			Path:   migration.Path,
 			Action: "rollback",
-			Time:   time.Now().Sub(now),
+			Time:   time.Since(now),
 		})
 		Migrations().Where("id", migration.Id).Delete()
 	})

@@ -8,32 +8,34 @@ import (
 	"testing"
 )
 
-func TestMigrate(t *testing.T) {
-	app := initApp()
+var app contracts.Application
 
+func init() {
+	app = initApp()
+
+}
+
+func TestMigrate(t *testing.T) {
 	app.Call(func(console contracts.Console) {
-		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate", "--path=migrations"}})
+		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate"}})
 	})
 }
 
 func TestRollback(t *testing.T) {
-	app := initApp()
 
 	app.Call(func(console contracts.Console) {
-		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate:rollback", "--path=migrations"}})
+		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate:rollback"}})
 	})
 }
 
 func TestRefresh(t *testing.T) {
-	app := initApp()
 
 	app.Call(func(console contracts.Console) {
-		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate:refresh", "--path=migrations"}})
+		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate:refresh"}})
 	})
 }
 
 func TestStatus(t *testing.T) {
-	app := initApp()
 
 	app.Call(func(console contracts.Console) {
 		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate:status"}})
@@ -41,7 +43,6 @@ func TestStatus(t *testing.T) {
 }
 
 func TestReset(t *testing.T) {
-	app := initApp()
 
 	app.Call(func(console contracts.Console) {
 		console.Run(inputs.StringArrayInput{ArgsArray: []string{"migrate:reset"}})
@@ -49,8 +50,6 @@ func TestReset(t *testing.T) {
 }
 
 func TestMakeMigration(t *testing.T) {
-	app := initApp()
-
 	app.Call(func(console contracts.Console) {
 		console.Run(inputs.StringArrayInput{ArgsArray: []string{"make:migration", "create_posts_table"}})
 	})

@@ -66,7 +66,7 @@ func (cmd Migrate) Handle() any {
 			Action: "migrate",
 			Batch:  batch + 1,
 			Path:   path,
-			Time:   time.Now().Sub(now),
+			Time:   time.Since(now),
 		})
 		Migrations().Create(contracts.Fields{
 			"batch":      batch + 1,

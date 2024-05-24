@@ -6,6 +6,7 @@ import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/commands"
 	"github.com/goal-web/supports/logs"
+	"github.com/golang-module/carbon/v2"
 	"github.com/modood/table"
 	"os"
 	"strings"
@@ -34,7 +35,7 @@ func (cmd Refresh) Handle() any {
 	var dir = cmd.StringOptional("path", cmd.dir)
 	if Migrations().Count() > 0 {
 		var batch = cmd.IntOptional("batch", int(Migrations().Max("batch")))
-		Migrations().Get().Map(func(i int, migration Migration) {
+		Migrations().Get().Map(func(i int, migration *Migration) {
 			sqlBytes, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, strings.ReplaceAll(migration.Path, ".sql", ".down.sql")))
 			if err != nil {
 				panic(err)
@@ -48,7 +49,7 @@ func (cmd Refresh) Handle() any {
 				Batch:  batch,
 				Path:   migration.Path,
 				Action: "rollback",
-				Time:   time.Now().Sub(now),
+				Time:   time.Since(now),
 			})
 			Migrations().Where("id", migration.Id).Delete()
 		})
@@ -72,12 +73,12 @@ func (cmd Refresh) Handle() any {
 			Action: "migrate",
 			Batch:  1,
 			Path:   path,
-			Time:   time.Now().Sub(now),
+			Time:   time.Since(now),
 		})
 		Migrations().Create(contracts.Fields{
 			"batch":      1,
 			"path":       path,
-			"created_at": time.Now(),
+			"created_at": carbon.Now().ToDateTimeString(),
 		})
 	}
 

@@ -33,7 +33,7 @@ func (cmd Reset) Handle() any {
 	var migrated = Migrations().Get()
 	var dir = cmd.StringOptional("path", cmd.dir)
 
-	migrated.Map(func(i int, migration Migration) {
+	migrated.Map(func(i int, migration *Migration) {
 		sqlBytes, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, strings.ReplaceAll(migration.Path, ".sql", ".down.sql")))
 		if err != nil {
 			panic(err)
@@ -47,7 +47,7 @@ func (cmd Reset) Handle() any {
 			Batch:  migration.Batch,
 			Path:   migration.Path,
 			Action: "reset",
-			Time:   time.Now().Sub(now),
+			Time:   time.Since(now),
 		})
 		Migrations().Where("id", migration.Id).Delete()
 	})
