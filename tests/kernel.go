@@ -6,7 +6,7 @@ import (
 )
 
 func NewService() contracts.ServiceProvider {
-	return console.NewService(NewKernel)
+	return console.NewService()
 }
 
 func NewKernel(app contracts.Application) contracts.Console {
