@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option go_package = ".";
+
+message MigrationModel  {
+  int32 id = 1;
+  string path = 2;
+  int32 batch = 3;
+  string created_at = 4;
+}

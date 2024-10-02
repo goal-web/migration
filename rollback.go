@@ -3,6 +3,7 @@ package migration
 import (
 	"fmt"
 	"github.com/goal-web/contracts"
+	"github.com/goal-web/migration/models"
 	"github.com/goal-web/supports/commands"
 	"github.com/goal-web/supports/logs"
 	"github.com/modood/table"
@@ -11,12 +12,14 @@ import (
 	"time"
 )
 
-func NewRollback(app contracts.Application) contracts.Command {
-	return &Rollback{
-		Command: commands.Base("migrate:rollback", "execute migrations"),
-		conn:    app.Get("db").(contracts.DBConnection),
-		dir:     getDir(app.Get("config").(contracts.Config)),
-	}
+func NewRollback() (contracts.Command, contracts.CommandHandlerProvider) {
+	return commands.Base("migrate:rollback", "execute models.MigrationQuery"),
+		func(app contracts.Application) contracts.CommandHandler {
+			return &Rollback{
+				conn: app.Get("db").(contracts.DBConnection),
+				dir:  getDir(app.Get("config").(contracts.Config)),
+			}
+		}
 }
 
 type Rollback struct {
@@ -30,16 +33,16 @@ func (cmd Rollback) Handle() any {
 	initTable(cmd.conn)
 
 	var batch int
-	if Migrations().Count() > 0 {
-		batch = cmd.IntOptional("batch", int(Migrations().Max("batch")))
+	if models.MigrationQuery().Count() > 0 {
+		batch = cmd.IntOptional("batch", int(models.MigrationQuery().Max("batch")))
 	} else {
 		return nil
 	}
 	var items []MigrateMsg
-	var migrated = Migrations().Where("batch", batch).Get()
+	var migrated = models.MigrationQuery().Where("batch", batch).Get()
 	var dir = cmd.StringOptional("path", cmd.dir)
 
-	migrated.Map(func(i int, migration *Migration) {
+	migrated.Map(func(i int, migration *models.MigrationModel) {
 		sqlBytes, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, strings.ReplaceAll(migration.Path, ".sql", ".down.sql")))
 		if err != nil {
 			panic(err)
@@ -55,7 +58,7 @@ func (cmd Rollback) Handle() any {
 			Action: "rollback",
 			Time:   time.Since(now),
 		})
-		Migrations().Where("id", migration.Id).Delete()
+		models.MigrationQuery().Where("id", migration.Id).Delete()
 	})
 
 	table.Output(items)

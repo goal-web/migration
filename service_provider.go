@@ -21,7 +21,7 @@ func (s serviceProvider) Register(app contracts.Application) {
 			NewShowStatus,
 			NewReset,
 		} {
-			console.RegisterCommand(provider(app).GetName(), provider)
+			console.RegisterCommand(provider)
 		}
 	})
 }

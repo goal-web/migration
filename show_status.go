@@ -2,16 +2,18 @@ package migration
 
 import (
 	"github.com/goal-web/contracts"
+	"github.com/goal-web/migration/models"
 	"github.com/goal-web/supports/commands"
 	"github.com/modood/table"
 	"strings"
 )
 
-func NewShowStatus(app contracts.Application) contracts.Command {
-	return &ShowStatus{
-		Command: commands.Base("migrate:status", "Rollback all database migrations"),
-		conn:    app.Get("db").(contracts.DBConnection),
-		dir:     getDir(app.Get("config").(contracts.Config)),
+func NewShowStatus() (contracts.Command, contracts.CommandHandlerProvider) {
+	return commands.Base("migrate:status", "Rollback all database models.MigrationQuery"), func(app contracts.Application) contracts.CommandHandler {
+		return &ShowStatus{
+			conn: app.Get("db").(contracts.DBConnection),
+			dir:  getDir(app.Get("config").(contracts.Config)),
+		}
 	}
 }
 
@@ -30,7 +32,7 @@ type Status struct {
 func (cmd ShowStatus) Handle() any {
 	initTable(cmd.conn)
 
-	items := Migrations().OrderByDesc("batch").OrderByDesc("id").Get().Pluck("path")
+	items := models.MigrationQuery().OrderByDesc("batch").OrderByDesc("id").Get().Pluck("path")
 
 	var dir = cmd.StringOptional("path", cmd.dir)
 	var list []Status
@@ -44,7 +46,7 @@ func (cmd ShowStatus) Handle() any {
 		if !strings.HasSuffix(path, ".down.sql") {
 			list = append(list, Status{
 				Path:   path,
-				Batch:  item.Batch,
+				Batch:  int(item.Batch),
 				Status: text,
 			})
 		}

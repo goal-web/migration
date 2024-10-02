@@ -9,11 +9,13 @@ import (
 	"time"
 )
 
-func NewGenerator(app contracts.Application) contracts.Command {
-	return &Generator{
-		Command: commands.Base("make:migration {name}", "Create a new migration file"),
-		dir:     getDir(app.Get("config").(contracts.Config)),
-	}
+func NewGenerator() (contracts.Command, contracts.CommandHandlerProvider) {
+	return commands.Base("make:migration {name}", "Create a new migration file"),
+		func(app contracts.Application) contracts.CommandHandler {
+			return &Generator{
+				dir: getDir(app.Get("config").(contracts.Config)),
+			}
+		}
 }
 
 type Generator struct {

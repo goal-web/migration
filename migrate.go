@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/goal-web/collection"
 	"github.com/goal-web/contracts"
+	"github.com/goal-web/migration/models"
 	"github.com/goal-web/supports/commands"
 	"github.com/goal-web/supports/logs"
 	"github.com/golang-module/carbon/v2"
@@ -13,12 +14,14 @@ import (
 	"time"
 )
 
-func NewMigrate(app contracts.Application) contracts.Command {
-	return &Migrate{
-		Command: commands.Base("migrate", "execute migrations"),
-		conn:    app.Get("db").(contracts.DBConnection),
-		dir:     getDir(app.Get("config").(contracts.Config)),
-	}
+func NewMigrate() (contracts.Command, contracts.CommandHandlerProvider) {
+	return commands.Base("migrate", "execute migrations"),
+		func(app contracts.Application) contracts.CommandHandler {
+			return &Migrate{
+				conn: app.Get("db").(contracts.DBConnection),
+				dir:  getDir(app.Get("config").(contracts.Config)),
+			}
+		}
 }
 
 type Migrate struct {
@@ -39,15 +42,15 @@ func (cmd Migrate) Handle() any {
 	initTable(cmd.conn)
 
 	var batch int
-	if Migrations().Count() > 0 {
-		batch = int(Migrations().Max("batch"))
+	if models.MigrationQuery().Count() > 0 {
+		batch = int(models.MigrationQuery().Max("batch"))
 	}
 
 	var dir = cmd.StringOptional("path", cmd.dir)
 	var items []MigrateMsg
-	var migrated = Migrations().Get()
+	var migrated = models.MigrationQuery().Get()
 	var files = collection.New(getFiles(dir)).Filter(func(i int, s string) bool {
-		return !strings.HasSuffix(s, ".down.sql") && migrated.Filter(func(i int, m *Migration) bool {
+		return !strings.HasSuffix(s, ".down.sql") && migrated.Filter(func(i int, m *models.MigrationModel) bool {
 			return m.Path == s
 		}).Count() == 0
 	}).ToArray()
@@ -68,7 +71,7 @@ func (cmd Migrate) Handle() any {
 			Path:   path,
 			Time:   time.Since(now),
 		})
-		Migrations().Create(contracts.Fields{
+		models.MigrationQuery().Create(contracts.Fields{
 			"batch":      batch + 1,
 			"path":       path,
 			"created_at": carbon.Now().ToDateTimeString(),
