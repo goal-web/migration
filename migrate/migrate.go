@@ -67,6 +67,7 @@ func Migrate(tableName string, indexes []string, model any, executor contracts.S
 	var fields []ColumnInfo
 	var statements []string
 
+	var existsIndexes []IndexInfo
 	exception := executor.Select(&fields, fmt.Sprintf("describe `%s`", tableName))
 	if exception != nil {
 		if !strings.HasSuffix(exception.Error(), " doesn't exist") {
@@ -88,12 +89,17 @@ func Migrate(tableName string, indexes []string, model any, executor contracts.S
 						constraints += " " + tag
 					}
 				}
-				tableFields = append(tableFields, fmt.Sprintf("`%s` %s %s;", fieldName, dbType, constraints))
+				tableFields = append(tableFields, fmt.Sprintf("`%s` %s %s", fieldName, dbType, constraints))
 			}
 		})
 
-		createStatement += fmt.Sprintf(" (%s)", strings.Join(tableFields, ", "))
+		createStatement += fmt.Sprintf(" (%s);", strings.Join(tableFields, ", "))
 		statements = append(statements, createStatement)
+	} else {
+		exception = executor.Select(&existsIndexes, fmt.Sprintf("show index from %s", tableName))
+		if exception != nil {
+			return exception
+		}
 	}
 
 	if len(fields) > 0 {
@@ -145,12 +151,6 @@ func Migrate(tableName string, indexes []string, model any, executor contracts.S
 				}
 			}
 		})
-	}
-
-	var existsIndexes []IndexInfo
-	exception = executor.Select(&existsIndexes, fmt.Sprintf("show index from %s", tableName))
-	if exception != nil {
-		return exception
 	}
 
 	indexesGrouped := collection.New(existsIndexes).GroupBy("key_name")
