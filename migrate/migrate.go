@@ -144,10 +144,10 @@ func Migrate(tableName string, indexes []string, model any, executor contracts.S
 					}
 
 					if changed {
-						statements = append(statements, fmt.Sprintf("ALTER TABLE %s MODIFY COLUMN %s %s %s;", tableName, fieldName, dbType, constraintsStr))
+						statements = append(statements, fmt.Sprintf("ALTER TABLE `%s` MODIFY COLUMN `%s` %s %s;", tableName, fieldName, dbType, constraintsStr))
 					}
 				} else {
-					statements = append(statements, fmt.Sprintf("ALTER TABLE %s ADD COLUMN %s %s %s;", tableName, fieldName, dbType, constraintsStr))
+					statements = append(statements, fmt.Sprintf("ALTER TABLE `%s` ADD COLUMN `%s` %s %s;", tableName, fieldName, dbType, constraintsStr))
 				}
 			}
 		})
