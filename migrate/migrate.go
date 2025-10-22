@@ -3,12 +3,14 @@ package migrate
 import (
 	"database/sql"
 	"fmt"
-	"github.com/goal-web/collection"
-	"github.com/goal-web/contracts"
-	"github.com/goal-web/supports/logs"
-	"github.com/goal-web/supports/utils"
 	"reflect"
 	"strings"
+
+	"github.com/goal-web/collection"
+	"github.com/goal-web/contracts"
+	"github.com/goal-web/supports/exceptions"
+	"github.com/goal-web/supports/logs"
+	"github.com/goal-web/supports/utils"
 )
 
 type Migrator func(executor contracts.SqlExecutor) contracts.Exception
@@ -165,7 +167,9 @@ func Migrate(tableName string, indexes []string, model any, executor contracts.S
 		query := strings.Join(statements, "\n")
 		_, exception = executor.Exec(query)
 		if exception != nil {
-			return exception
+			err := fmt.Errorf("执行 %s 迁移失败", query)
+			logs.Default().Info(err.Error())
+			return exceptions.WithPrevious(err, exception)
 		}
 		logs.Default().Info(fmt.Sprintf("%s 已完成迁移.", tableName))
 		logs.Default().Info(fmt.Sprintf("%s 迁移内容：%s", tableName, query))
