@@ -13,7 +13,7 @@ import (
 )
 
 func initApp(path ...string) contracts.Application {
-	app := application.Singleton()
+	app := application.Default()
 
 	// 设置异常处理器
 	app.Singleton("exceptions.handler", func() contracts.ExceptionHandler {

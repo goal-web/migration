@@ -2,10 +2,11 @@ package tests
 
 import (
 	"fmt"
-	"github.com/goal-web/console/inputs"
-	"github.com/goal-web/contracts"
 	"regexp"
 	"testing"
+
+	"github.com/goal-web/console/inputs"
+	"github.com/goal-web/contracts"
 )
 
 var app contracts.Application
