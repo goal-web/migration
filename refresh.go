@@ -1,17 +1,17 @@
 package migration
 
 import (
-	"fmt"
-	"github.com/goal-web/collection"
-	"github.com/goal-web/contracts"
-	"github.com/goal-web/migration/models"
-	"github.com/goal-web/supports/commands"
-	"github.com/goal-web/supports/logs"
-	"github.com/golang-module/carbon/v2"
-	"github.com/modood/table"
-	"os"
-	"strings"
-	"time"
+    "fmt"
+    "github.com/goal-web/collection"
+    "github.com/goal-web/contracts"
+    "github.com/goal-web/migration/models"
+    "github.com/goal-web/supports/commands"
+    "github.com/goal-web/supports/logs"
+    "github.com/dromara/carbon/v2"
+    "github.com/modood/table"
+    "os"
+    "strings"
+    "time"
 )
 
 func NewRefresh() (contracts.Command, contracts.CommandHandlerProvider) {
