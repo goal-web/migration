@@ -25,7 +25,6 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/goal-web/container v0.5.3 // indirect
 	github.com/goal-web/querybuilder v0.5.5 // indirect
-	github.com/golang-module/carbon/v2 v2.3.12 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/jmoiron/sqlx v1.3.4 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
